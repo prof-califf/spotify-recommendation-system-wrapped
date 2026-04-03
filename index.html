@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify Recommendation System — MIS 432</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Circular+Std:wght@400;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1DB954;
+    --green-dim: #158a3e;
+    --green-glow: rgba(29,185,84,0.18);
+    --black: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --surface3: #282828;
+    --text: #FFFFFF;
+    --text-muted: #A7A7A7;
+    --text-dim: #535353;
+    --font-display: 'DM Sans', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 15px; letter-spacing: -0.3px;
+  }
+  .nav-logo svg { width: 28px; height: 28px; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-badge {
+    font-size: 11px; font-weight: 500; color: var(--green);
+    background: var(--green-glow); border: 1px solid rgba(29,185,84,0.3);
+    padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 48px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(29,185,84,0.15) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 80% 60%, rgba(29,185,84,0.06) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 780px; }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 24px; height: 1px; background: var(--green);
+  }
+  h1 {
+    font-size: clamp(42px, 7vw, 80px); font-weight: 700;
+    line-height: 1.05; letter-spacing: -2px;
+    margin-bottom: 28px;
+  }
+  h1 span { color: var(--green); }
+  .hero-sub {
+    font-size: 18px; color: var(--text-muted); max-width: 560px;
+    line-height: 1.6; margin-bottom: 48px; font-weight: 300;
+  }
+  .hero-stats {
+    display: flex; gap: 48px; flex-wrap: wrap;
+  }
+  .hero-stat-num {
+    font-size: 36px; font-weight: 700; color: var(--green); line-height: 1;
+  }
+  .hero-stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .scroll-hint {
+    position: absolute; bottom: 40px; left: 48px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--text-dim); letter-spacing: 1px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+  /* ── Sections ── */
+  section { padding: 100px 48px; }
+  .section-inner { max-width: 1000px; margin: 0 auto; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 16px;
+  }
+  h2 {
+    font-size: clamp(28px, 4vw, 44px); font-weight: 700;
+    letter-spacing: -1px; line-height: 1.1; margin-bottom: 20px;
+  }
+  .section-intro {
+    font-size: 18px; color: var(--text-muted); max-width: 640px;
+    line-height: 1.6; margin-bottom: 56px; font-weight: 300;
+  }
+
+  /* ── Problem section ── */
+  .problem-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    border-radius: 16px; overflow: hidden;
+  }
+  .problem-card {
+    background: var(--surface2); padding: 40px;
+  }
+  .problem-card:first-child { border-radius: 14px 0 0 0; }
+  .problem-card:nth-child(2) { border-radius: 0 14px 0 0; }
+  .problem-card:nth-child(3) { border-radius: 0 0 0 14px; }
+  .problem-card:last-child { border-radius: 0 0 14px 0; }
+  .problem-card.full { grid-column: 1 / -1; border-radius: 0 !important; }
+  .problem-icon { font-size: 28px; margin-bottom: 16px; }
+  .problem-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
+  .problem-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── Signal cards ── */
+  .signals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 56px; }
+  .signal-card {
+    background: var(--surface2); border-radius: 16px; padding: 32px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .signal-card:hover { border-color: var(--green); transform: translateY(-4px); }
+  .signal-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--green-glow); border: 1px solid rgba(29,185,84,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 20px;
+  }
+  .signal-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .signal-card p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .signal-weight {
+    margin-top: 16px; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--green);
+  }
+
+  /* ── How it works ── */
+  .steps { display: flex; flex-direction: column; gap: 2px; }
+  .step {
+    display: grid; grid-template-columns: 64px 1fr; gap: 24px; align-items: start;
+    background: var(--surface2); padding: 32px;
+  }
+  .step:first-child { border-radius: 14px 14px 0 0; }
+  .step:last-child { border-radius: 0 0 14px 14px; }
+  .step-num {
+    font-size: 40px; font-weight: 700; color: var(--green);
+    opacity: 0.3; line-height: 1; font-family: var(--font-mono);
+  }
+  .step h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .step p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── Recommendations ── */
+  #recommendations { background: var(--surface); }
+  .reco-user {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 40px; padding: 10px 20px 10px 10px;
+    margin-bottom: 40px;
+  }
+  .reco-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #1DB954, #0f7a34);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+  }
+  .reco-name { font-size: 14px; font-weight: 500; }
+  .reco-sub { font-size: 12px; color: var(--text-muted); }
+
+  .reco-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .reco-card {
+    background: var(--surface2); border-radius: 16px; padding: 28px;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .reco-card:hover { transform: translateY(-6px); border-color: rgba(29,185,84,0.4); }
+  .reco-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--green), transparent);
+  }
+  .reco-rank { font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .reco-art {
+    width: 56px; height: 56px; border-radius: 10px;
+    background: var(--surface3); display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .reco-song { font-size: 17px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .reco-artist { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .reco-bar-label {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
+  }
+  .reco-bar-track {
+    height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden;
+  }
+  .reco-bar-fill {
+    height: 100%; background: var(--green); border-radius: 2px;
+    transition: width 1s ease;
+  }
+  .reco-why { font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.5; }
+
+  .reco-explainer {
+    margin-top: 48px; background: var(--surface2); border-radius: 16px; padding: 40px;
+    border: 1px solid rgba(29,185,84,0.15);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  }
+  .reco-explainer h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .reco-explainer p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  /* ── Wrapped ── */
+  #wrapped { background: var(--black); }
+  .wrapped-hero {
+    background: linear-gradient(135deg, #0d4a1f 0%, #0a0a0a 60%);
+    border-radius: 24px; padding: 56px; margin-bottom: 32px;
+    border: 1px solid rgba(29,185,84,0.2); position: relative; overflow: hidden;
+  }
+  .wrapped-hero::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,185,84,0.15) 0%, transparent 70%);
+  }
+  .wrapped-year {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 10px;
+  }
+  .wrapped-user-name { font-size: 48px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
+  .wrapped-user-name span { color: var(--green); }
+  .wrapped-tagline { font-size: 16px; color: var(--text-muted); margin-top: 12px; }
+
+  .wrapped-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .wrapped-card {
+    background: var(--surface2); border-radius: 20px; padding: 32px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .wrapped-card.tall { grid-row: span 2; }
+  .wrapped-card.wide { grid-column: span 2; }
+  .wrapped-card-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 16px;
+  }
+  .wrapped-artist-name { font-size: 32px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1; margin-bottom: 8px; }
+  .wrapped-artist-sub { font-size: 14px; color: var(--text-muted); }
+  .wrapped-big-num { font-size: 64px; font-weight: 700; color: var(--green); line-height: 1; letter-spacing: -2px; }
+  .wrapped-big-label { font-size: 14px; color: var(--text-muted); margin-top: 6px; }
+  .wrapped-song-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+  .wrapped-song-item { display: flex; align-items: center; gap: 14px; }
+  .wrapped-song-pos {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--green); color: #000; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .wrapped-song-pos.two { background: rgba(29,185,84,0.5); color: var(--text); }
+  .wrapped-song-pos.three { background: rgba(29,185,84,0.25); color: var(--text); }
+  .wrapped-song-title { font-size: 14px; font-weight: 600; }
+  .wrapped-song-artist { font-size: 12px; color: var(--text-muted); }
+  .wrapped-personality {
+    background: linear-gradient(135deg, var(--green-glow), rgba(255,255,255,0.03));
+    border: 1px solid rgba(29,185,84,0.3); border-radius: 20px; padding: 32px;
+    grid-column: span 3; text-align: center;
+  }
+  .wrapped-personality-badge {
+    font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 12px;
+  }
+  .wrapped-personality-text {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.5px; max-width: 600px; margin: 0 auto;
+  }
+  .skip-compare {
+    display: flex; gap: 40px; align-items: flex-end; margin-top: 16px;
+  }
+  .skip-bar-group { flex: 1; }
+  .skip-bar-name { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .skip-bar-outer { height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+  .skip-bar-inner { height: 100%; border-radius: 3px; }
+
+  /* ── AI Factory ── */
+  #factory { background: var(--surface); }
+  .factory-flow {
+    display: flex; gap: 0; align-items: stretch;
+    background: var(--surface2); border-radius: 16px; overflow: hidden;
+  }
+  .factory-step {
+    flex: 1; padding: 32px 24px; position: relative;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.3s;
+  }
+  .factory-step:last-child { border-right: none; }
+  .factory-step:hover { background: var(--surface3); }
+  .factory-step::after {
+    content: '→'; position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-dim); font-size: 18px; z-index: 1;
+  }
+  .factory-step:last-child::after { display: none; }
+  .factory-step-icon { font-size: 24px; margin-bottom: 16px; }
+  .factory-step-name {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 8px;
+  }
+  .factory-step-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .factory-step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── Business Rec ── */
+  #business { background: var(--black); }
+  .business-recs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px; }
+  .business-rec {
+    background: var(--surface2); border-radius: 16px; padding: 36px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .business-rec.highlight {
+    background: linear-gradient(135deg, rgba(29,185,84,0.12), var(--surface2));
+    border-color: rgba(29,185,84,0.3);
+  }
+  .business-rec-num {
+    font-size: 48px; font-weight: 700; color: var(--green);
+    opacity: 0.2; line-height: 1; font-family: var(--font-mono); margin-bottom: 16px;
+  }
+  .business-rec h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
+  .business-rec p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--surface); border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 60px 48px; text-align: center;
+  }
+  .footer-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .footer-logo svg { width: 24px; height: 24px; }
+  .footer-logo span { font-weight: 700; font-size: 16px; }
+  .footer-course { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+  .footer-school { font-size: 13px; color: var(--text-dim); }
+  .footer-divider { width: 40px; height: 1px; background: var(--surface3); margin: 24px auto; }
+  .footer-disc { font-size: 12px; color: var(--text-dim); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 64px 20px; }
+    .hero { padding: 100px 20px 64px; }
+    .hero-stats { gap: 32px; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .problem-card { border-radius: 0 !important; }
+    .problem-card:first-child { border-radius: 14px 14px 0 0 !important; }
+    .problem-card:last-child { border-radius: 0 0 14px 14px !important; }
+    .signals { grid-template-columns: 1fr; }
+    .reco-cards { grid-template-columns: 1fr; }
+    .reco-explainer { grid-template-columns: 1fr; }
+    .wrapped-grid { grid-template-columns: 1fr; }
+    .wrapped-card.wide, .wrapped-card.tall { grid-column: span 1; grid-row: span 1; }
+    .wrapped-personality { grid-column: span 1; }
+    .factory-flow { flex-direction: column; }
+    .factory-step::after { display: none; }
+    .business-recs { grid-template-columns: 1fr; }
+    footer { padding: 40px 20px; }
+  }
+
+  /* ── Animations ── */
+  .fade-up {
+    opacity: 0; transform: translateY(30px);
+    animation: fadeUp 0.7s ease forwards;
+  }
+  @keyframes fadeUp { to { opacity: 1; transform: none; } }
+  .fade-up:nth-child(1) { animation-delay: 0.1s; }
+  .fade-up:nth-child(2) { animation-delay: 0.2s; }
+  .fade-up:nth-child(3) { animation-delay: 0.3s; }
+  .fade-up:nth-child(4) { animation-delay: 0.4s; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">
+    <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    <span>Spotify Rec Lab</span>
+  </div>
+  <div class="nav-links">
+    <a href="#problem">The Problem</a>
+    <a href="#how">How It Works</a>
+    <a href="#recommendations">Recommendations</a>
+    <a href="#wrapped">Wrapped</a>
+    <a href="#business">Business Case</a>
+  </div>
+  <div class="nav-badge">MIS 432</div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow fade-up">MIS 432 · AI in Business · WWU</div>
+    <h1 class="fade-up">Building Spotify's<br><span>Recommendation</span><br>Engine</h1>
+    <p class="hero-sub fade-up">A simplified, end-to-end simulation of how Spotify turns behavioral data into personalized music recommendations — and the annual Wrapped experience.</p>
+    <div class="hero-stats fade-up">
+      <div>
+        <div class="hero-stat-num">10</div>
+        <div class="hero-stat-label">Simulated Users</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">10</div>
+        <div class="hero-stat-label">Songs in Catalog</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">3</div>
+        <div class="hero-stat-label">Behavioral Signals</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">600M</div>
+        <div class="hero-stat-label">Real Spotify Users</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ &nbsp; Scroll to explore</div>
+</section>
+
+<!-- Problem -->
+<section id="problem">
+  <div class="section-inner">
+    <div class="section-label">The Business Problem</div>
+    <h2>Why Spotify can't rely on human editors</h2>
+    <p class="section-intro">With 600 million users and 100 million tracks, no team of editors could ever hand-curate the right playlist for every person at every moment. Spotify's solution: let behavior do the talking.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card fade-up">
+        <div class="problem-icon">🎯</div>
+        <h3>The Scale Problem</h3>
+        <p>Spotify has 600 million users, 100 million tracks, and needs to make a personalized recommendation for every single user every time they open the app. No human team could do this — the math simply doesn't work.</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="problem-icon">📊</div>
+        <h3>The Data Advantage</h3>
+        <p>Every stream, skip, and save is a data point. Across billions of users, these signals reveal taste patterns invisible to any editor. A listener who skips ballads at 7am but plays them at night is telling the system exactly what it needs to know.</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="problem-icon">💰</div>
+        <h3>The Business Stake</h3>
+        <p>Better recommendations mean longer listening sessions, lower churn, and more premium conversions. Spotify's 2021 engineering blog links recommendation quality directly to the metrics that determine company value.</p>
+      </div>
+      <div class="problem-card fade-up">
+        <div class="problem-icon">🔄</div>
+        <h3>The AI Factory Loop</h3>
+        <p>This project demonstrates the full AI Factory: data collection → model training → prediction → decision → business value. The same dataset powering daily recommendations also generates Wrapped — showing how good data infrastructure creates value in multiple places at once.</p>
+      </div>
+    </div>
+
+    <br><br>
+    <div class="section-label">The Three Signals</div>
+    <h2>What behavior tells Spotify</h2>
+    <p class="section-intro">Instead of asking users to rate songs, Spotify reads what they actually do. These three implicit signals are the foundation of everything.</p>
+
+    <div class="signals">
+      <div class="signal-card fade-up">
+        <div class="signal-icon">▶️</div>
+        <h3>Stream Count</h3>
+        <p>How many times a user played a track. Repeated plays are one of the strongest signals of genuine preference — you don't accidentally listen to a song 15 times.</p>
+        <div class="signal-weight">Signal strength: High</div>
+      </div>
+      <div class="signal-card fade-up">
+        <div class="signal-icon">⏭️</div>
+        <h3>Skips</h3>
+        <p>Bailing on a song before it finishes — especially in the first 30 seconds — is one of the strongest negative signals in the system. It tells Spotify: not this, not now.</p>
+        <div class="signal-weight">Signal strength: Very High (negative)</div>
+      </div>
+      <div class="signal-card fade-up">
+        <div class="signal-icon">💚</div>
+        <h3>Saves</h3>
+        <p>Adding a song to a library or playlist is an explicit positive signal. Unlike streams, which can be passive, saving requires intention. It's the closest thing to a thumbs-up the system gets.</p>
+        <div class="signal-weight">Signal strength: Very High (positive)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section id="how" style="background: var(--surface);">
+  <div class="section-inner">
+    <div class="section-label">The Model</div>
+    <h2>How collaborative filtering works</h2>
+    <p class="section-intro">The recommendation model doesn't need to know anything about music theory. It just needs to find people who listen like you — and surface what they love that you haven't heard yet.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <h3>Build a behavioral profile for every user</h3>
+          <p>Each user becomes a row of numbers: how many times they streamed each song, whether they skipped it, whether they saved it. This creates a fingerprint of their taste — not based on demographics, but on actual behavior.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <h3>Measure similarity between users</h3>
+          <p>Using cosine similarity, the model compares every user's listening fingerprint to every other user's. Two people who stream and save the same obscure tracks are highly similar — even if they've never interacted. This is collaborative filtering: the crowd does the curating.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <h3>Find what similar users love that you haven't heard</h3>
+          <p>The model identifies the user's closest neighbors, then surfaces songs those neighbors streamed heavily that the target user hasn't played yet. These become the recommendations.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
+          <h3>Rank and present the top picks</h3>
+          <p>Songs are ranked by predicted engagement score — a weighted combination of stream counts and saves from similar users. The top three become the personalized recommendation shelf.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recommendations -->
+<section id="recommendations">
+  <div class="section-inner">
+    <div class="section-label">Model Output</div>
+    <h2>Top picks for Mia Torres</h2>
+    <p class="section-intro">Based on Mia's listening history and the behavior of the two users most similar to her, the model surfaces three songs she hasn't played — but is very likely to enjoy.</p>
+
+    <div class="reco-user">
+      <div class="reco-avatar">MT</div>
+      <div>
+        <div class="reco-name">Mia Torres</div>
+        <div class="reco-sub">Most similar to: Jordan Lee &amp; Sam Patel</div>
+      </div>
+    </div>
+
+    <div class="reco-cards">
+      <div class="reco-card fade-up">
+        <div class="reco-rank">#1 Pick</div>
+        <div class="reco-art">🎵</div>
+        <div class="reco-song">Midnight Protocol</div>
+        <div class="reco-artist">DJ Prism</div>
+        <div class="reco-bar-label"><span>Match score</span><span>94%</span></div>
+        <div class="reco-bar-track"><div class="reco-bar-fill" style="width:94%"></div></div>
+        <div class="reco-why">Jordan Lee streamed this 34 times and saved it. Sam Patel streamed it 28 times. Both of Mia's closest neighbors love this track.</div>
+      </div>
+      <div class="reco-card fade-up">
+        <div class="reco-rank">#2 Pick</div>
+        <div class="reco-art">🎶</div>
+        <div class="reco-song">Coded in Bloom</div>
+        <div class="reco-artist">Solaris Effect</div>
+        <div class="reco-bar-label"><span>Match score</span><span>81%</span></div>
+        <div class="reco-bar-track"><div class="reco-bar-fill" style="width:81%"></div></div>
+        <div class="reco-why">Consistently high streams across Mia's two closest neighbors with zero skips — a strong positive signal the model weighs heavily.</div>
+      </div>
+      <div class="reco-card fade-up">
+        <div class="reco-rank">#3 Pick</div>
+        <div class="reco-art">🎸</div>
+        <div class="reco-song">Gold Standard</div>
+        <div class="reco-artist">The Static Echo</div>
+        <div class="reco-bar-label"><span>Match score</span><span>73%</span></div>
+        <div class="reco-bar-track"><div class="reco-bar-fill" style="width:73%"></div></div>
+        <div class="reco-why">Mia already saves tracks by The Static Echo — this song by the same artist scores high on predicted engagement based on artist affinity.</div>
+      </div>
+    </div>
+
+    <div class="reco-explainer">
+      <div>
+        <h3>Why this matters for business</h3>
+        <p>Every recommendation that lands correctly is a longer listening session. Every session that ends in a save or playlist add is a signal that improves future recommendations. The model gets better as users engage — creating a flywheel that compounds over time and is very difficult for a competitor to replicate.</p>
+      </div>
+      <div>
+        <h3>What the model can't see</h3>
+        <p>Collaborative filtering has a cold start problem: new users have no history, so the model has nothing to work with. It also struggles with niche taste — if no similar user exists in the dataset, the recommendations regress toward popular songs rather than genuinely personalized picks. These are real limitations Spotify's engineering teams work to address.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Wrapped -->
+<section id="wrapped">
+  <div class="section-inner">
+    <div class="section-label">Spotify Wrapped</div>
+    <h2>The same data. A different product.</h2>
+    <p class="section-intro">Wrapped isn't built from a separate system. It's the exact same behavioral dataset — streams, skips, saves — aggregated annually and presented as a shareable story. This is what good data infrastructure looks like: one investment, multiple products.</p>
+
+    <div class="wrapped-hero">
+      <div class="wrapped-year">Your 2024 Wrapped</div>
+      <div class="wrapped-user-name">Mia <span>Torres</span></div>
+      <div class="wrapped-tagline">Here's the soundtrack to your year.</div>
+    </div>
+
+    <div class="wrapped-grid">
+      <div class="wrapped-card tall">
+        <div class="wrapped-card-label">Top Artist</div>
+        <div style="margin-bottom: 12px; font-size: 36px;">🎤</div>
+        <div class="wrapped-artist-name">The Static Echo</div>
+        <div class="wrapped-artist-sub">You came back to them again and again — the most streamed artist in your library this year by a wide margin.</div>
+      </div>
+      <div class="wrapped-card">
+        <div class="wrapped-card-label">Total Streams This Year</div>
+        <div class="wrapped-big-num">312</div>
+        <div class="wrapped-big-label">plays across all tracks</div>
+      </div>
+      <div class="wrapped-card">
+        <div class="wrapped-card-label">Songs Saved</div>
+        <div class="wrapped-big-num">7</div>
+        <div class="wrapped-big-label">added to your library</div>
+      </div>
+      <div class="wrapped-card wide">
+        <div class="wrapped-card-label">Your Top 3 Songs</div>
+        <div class="wrapped-song-list">
+          <div class="wrapped-song-item">
+            <div class="wrapped-song-pos">1</div>
+            <div>
+              <div class="wrapped-song-title">Neon Boulevard</div>
+              <div class="wrapped-song-artist">The Static Echo · 38 streams</div>
+            </div>
+          </div>
+          <div class="wrapped-song-item">
+            <div class="wrapped-song-pos two">2</div>
+            <div>
+              <div class="wrapped-song-title">Ocean in My Chest</div>
+              <div class="wrapped-song-artist">Hazel & the Tide · 34 streams</div>
+            </div>
+          </div>
+          <div class="wrapped-song-item">
+            <div class="wrapped-song-pos three">3</div>
+            <div>
+              <div class="wrapped-song-title">Wildfire Season</div>
+              <div class="wrapped-song-artist">Cactus Road · 31 streams</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wrapped-card wide">
+        <div class="wrapped-card-label">Skip Rate vs. Average Listener</div>
+        <div class="skip-compare">
+          <div class="skip-bar-group">
+            <div class="skip-bar-name">Mia Torres — 22%</div>
+            <div class="skip-bar-outer"><div class="skip-bar-inner" style="width:22%;background:var(--green)"></div></div>
+          </div>
+          <div class="skip-bar-group">
+            <div class="skip-bar-name">Average User — 41%</div>
+            <div class="skip-bar-outer"><div class="skip-bar-inner" style="width:41%;background:var(--text-dim)"></div></div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:16px;">Mia skips far less than the average listener — meaning the recommendations she receives are landing well, and the model is improving from her positive feedback loop.</div>
+      </div>
+      <div class="wrapped-personality">
+        <div class="wrapped-personality-badge">✦ &nbsp; Your Listening Personality</div>
+        <div class="wrapped-personality-text">"The Deep Diver — when Mia finds an artist she loves, she commits. Repeat plays, saves, and almost no skips. The algorithm sees you clearly."</div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px; background:var(--surface2); border-radius:16px; padding:40px; border:1px solid rgba(255,255,255,0.06);">
+      <div class="section-label">Business Insight</div>
+      <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:14px;">Why Wrapped is worth hundreds of millions in marketing</h3>
+      <p style="font-size:15px;color:var(--text-muted);line-height:1.7;max-width:720px;">Spotify Wrapped generates hundreds of millions of social media posts every December — organic marketing that no ad budget could replicate. But Wrapped isn't a separate product with a separate team. It's the annual summary of the same behavioral data that powers daily recommendations. Investing in better data infrastructure doesn't just improve your recommendation engine — it funds your most viral marketing moment of the year. That's what the AI Factory model looks like in practice.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI Factory -->
+<section id="factory">
+  <div class="section-inner">
+    <div class="section-label">Framework</div>
+    <h2>The AI Factory in this project</h2>
+    <p class="section-intro">Every component of this lab maps to a step in the AI Factory — the framework that describes how organizations turn raw data into business value through machine learning.</p>
+
+    <div class="factory-flow">
+      <div class="factory-step">
+        <div class="factory-step-icon">📦</div>
+        <div class="factory-step-name">Data</div>
+        <div class="factory-step-title">Simulated behavioral signals</div>
+        <div class="factory-step-desc">Stream counts, skip flags, and saves for 10 users × 10 songs — mirroring Spotify's implicit signal collection at scale.</div>
+      </div>
+      <div class="factory-step">
+        <div class="factory-step-icon">🧠</div>
+        <div class="factory-step-name">Model</div>
+        <div class="factory-step-title">Collaborative filtering</div>
+        <div class="factory-step-desc">Cosine similarity across user-song matrices to identify taste neighbors and surface unheard songs.</div>
+      </div>
+      <div class="factory-step">
+        <div class="factory-step-icon">🎯</div>
+        <div class="factory-step-name">Prediction</div>
+        <div class="factory-step-title">Ranked song list</div>
+        <div class="factory-step-desc">A scored, ordered list of the top 3 songs a specific user is most likely to engage with.</div>
+      </div>
+      <div class="factory-step">
+        <div class="factory-step-icon">⚡</div>
+        <div class="factory-step-name">Decision</div>
+        <div class="factory-step-title">What appears on Home</div>
+        <div class="factory-step-desc">Business rules, licensing checks, and A/B testing convert predictions into what users actually see — human judgment still in the loop.</div>
+      </div>
+      <div class="factory-step">
+        <div class="factory-step-icon">💚</div>
+        <div class="factory-step-name">Value</div>
+        <div class="factory-step-title">Engagement + Wrapped</div>
+        <div class="factory-step-desc">Longer sessions, lower churn, premium conversions — and the annual Wrapped experience that drives social sharing.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Business Rec -->
+<section id="business">
+  <div class="section-inner">
+    <div class="section-label">Business Recommendation</div>
+    <h2>What Spotify should prioritize next</h2>
+    <p class="section-intro">Building this system surfaced four clear opportunities where Spotify's real infrastructure should invest to stay ahead.</p>
+
+    <div class="business-recs">
+      <div class="business-rec highlight fade-up">
+        <div class="business-rec-num">01</div>
+        <h3>Solve the cold start problem</h3>
+        <p>Collaborative filtering fails for new users who have no listening history. Spotify should invest in onboarding flows that collect preference signals quickly — genre selections, mood picks, or even short audio previews — so the model has something to work with from day one.</p>
+      </div>
+      <div class="business-rec fade-up">
+        <div class="business-rec-num">02</div>
+        <h3>Treat data quality as a business risk</h3>
+        <p>The training-serving gap — where a model is trained on data processed one way and deployed on data processed differently — is a real production failure mode. Business leaders should treat data pipeline consistency as a governance issue, not just a technical one. A small mismatch can silently degrade recommendations for millions of users.</p>
+      </div>
+      <div class="business-rec fade-up">
+        <div class="business-rec-num">03</div>
+        <h3>Close the prediction-decision gap</h3>
+        <p>A model's output is not the same as a business decision. Spotify should maintain clear ownership over who — or what system — converts ranked predictions into what users see. Business rules, licensing constraints, and content policies must be applied after the model runs, and that layer needs accountability.</p>
+      </div>
+      <div class="business-rec highlight fade-up">
+        <div class="business-rec-num">04</div>
+        <h3>Invest in data infrastructure as a product</h3>
+        <p>Wrapped generates hundreds of millions of organic social posts per year. That marketing outcome is only possible because Spotify's behavioral data pipeline is clean, consistent, and well-maintained. The lesson for any AI-powered business: the real investment isn't the model — it's the data system underneath it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">
+    <svg viewBox="0 0 24 24" fill="#1DB954"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+    <span>Spotify Recommendation Lab</span>
+  </div>
+  <div class="footer-course">MIS 432: AI in Business</div>
+  <div class="footer-school">Western Washington University · College of Business and Economics</div>
+  <div class="footer-divider"></div>
+  <div class="footer-disc">This project was completed as part of MIS 432: AI in Business at Western Washington University. All data is simulated for educational purposes. Spotify, Spotify Wrapped, and the Spotify logo are trademarks of Spotify AB.</div>
+</footer>
+
+</body>
+</html>
