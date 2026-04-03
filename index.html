@@ -22,11 +22,11 @@
     --font-body: 'DM Sans', sans-serif;
     --font-mono: 'DM Mono', monospace;
   }
-
+ 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
   html { scroll-behavior: smooth; }
-
+ 
   body {
     background: var(--black);
     color: var(--text);
@@ -35,7 +35,7 @@
     line-height: 1.7;
     overflow-x: hidden;
   }
-
+ 
   /* ── Nav ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -62,7 +62,7 @@
     background: var(--green-glow); border: 1px solid rgba(29,185,84,0.3);
     padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px;
   }
-
+ 
   /* ── Hero ── */
   .hero {
     min-height: 100vh;
@@ -115,7 +115,7 @@
     animation: bounce 2s ease-in-out infinite;
   }
   @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
-
+ 
   /* ── Sections ── */
   section { padding: 100px 48px; }
   .section-inner { max-width: 1000px; margin: 0 auto; }
@@ -131,7 +131,7 @@
     font-size: 18px; color: var(--text-muted); max-width: 640px;
     line-height: 1.6; margin-bottom: 56px; font-weight: 300;
   }
-
+ 
   /* ── Problem section ── */
   .problem-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
@@ -148,7 +148,7 @@
   .problem-icon { font-size: 28px; margin-bottom: 16px; }
   .problem-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
   .problem-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
+ 
   /* ── Signal cards ── */
   .signals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 56px; }
   .signal-card {
@@ -169,7 +169,7 @@
     margin-top: 16px; font-size: 11px; font-weight: 700; letter-spacing: 1px;
     text-transform: uppercase; color: var(--green);
   }
-
+ 
   /* ── How it works ── */
   .steps { display: flex; flex-direction: column; gap: 2px; }
   .step {
@@ -184,7 +184,7 @@
   }
   .step h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
   .step p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
+ 
   /* ── Recommendations ── */
   #recommendations { background: var(--surface); }
   .reco-user {
@@ -201,7 +201,7 @@
   }
   .reco-name { font-size: 14px; font-weight: 500; }
   .reco-sub { font-size: 12px; color: var(--text-muted); }
-
+ 
   .reco-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .reco-card {
     background: var(--surface2); border-radius: 16px; padding: 28px;
@@ -234,7 +234,7 @@
     transition: width 1s ease;
   }
   .reco-why { font-size: 12px; color: var(--text-muted); margin-top: 14px; line-height: 1.5; }
-
+ 
   .reco-explainer {
     margin-top: 48px; background: var(--surface2); border-radius: 16px; padding: 40px;
     border: 1px solid rgba(29,185,84,0.15);
@@ -242,7 +242,7 @@
   }
   .reco-explainer h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
   .reco-explainer p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-
+ 
   /* ── Wrapped ── */
   #wrapped { background: var(--black); }
   .wrapped-hero {
@@ -262,7 +262,7 @@
   .wrapped-user-name { font-size: 48px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; }
   .wrapped-user-name span { color: var(--green); }
   .wrapped-tagline { font-size: 16px; color: var(--text-muted); margin-top: 12px; }
-
+ 
   .wrapped-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
   .wrapped-card {
     background: var(--surface2); border-radius: 20px; padding: 32px;
@@ -308,7 +308,7 @@
   .skip-bar-name { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
   .skip-bar-outer { height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
   .skip-bar-inner { height: 100%; border-radius: 3px; }
-
+ 
   /* ── AI Factory ── */
   #factory { background: var(--surface); }
   .factory-flow {
@@ -334,7 +334,7 @@
   }
   .factory-step-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
   .factory-step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
-
+ 
   /* ── Business Rec ── */
   #business { background: var(--black); }
   .business-recs { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px; }
@@ -352,7 +352,7 @@
   }
   .business-rec h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
   .business-rec p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-
+ 
   /* ── Footer ── */
   footer {
     background: var(--surface); border-top: 1px solid rgba(255,255,255,0.06);
@@ -365,7 +365,7 @@
   .footer-school { font-size: 13px; color: var(--text-dim); }
   .footer-divider { width: 40px; height: 1px; background: var(--surface3); margin: 24px auto; }
   .footer-disc { font-size: 12px; color: var(--text-dim); max-width: 480px; margin: 0 auto; line-height: 1.6; }
-
+ 
   /* ── Responsive ── */
   @media (max-width: 768px) {
     nav { padding: 16px 20px; }
@@ -388,7 +388,7 @@
     .business-recs { grid-template-columns: 1fr; }
     footer { padding: 40px 20px; }
   }
-
+ 
   /* ── Animations ── */
   .fade-up {
     opacity: 0; transform: translateY(30px);
@@ -402,7 +402,7 @@
 </style>
 </head>
 <body>
-
+ 
 <!-- Nav -->
 <nav>
   <div class="nav-logo">
@@ -418,7 +418,7 @@
   </div>
   <div class="nav-badge">MIS 432</div>
 </nav>
-
+ 
 <!-- Hero -->
 <section class="hero" id="top">
   <div class="hero-bg"></div>
@@ -448,14 +448,14 @@
   </div>
   <div class="scroll-hint">↓ &nbsp; Scroll to explore</div>
 </section>
-
+ 
 <!-- Problem -->
 <section id="problem">
   <div class="section-inner">
     <div class="section-label">The Business Problem</div>
     <h2>Why Spotify can't rely on human editors</h2>
     <p class="section-intro">With 600 million users and 100 million tracks, no team of editors could ever hand-curate the right playlist for every person at every moment. Spotify's solution: let behavior do the talking.</p>
-
+ 
     <div class="problem-grid">
       <div class="problem-card fade-up">
         <div class="problem-icon">🎯</div>
@@ -478,12 +478,12 @@
         <p>This project demonstrates the full AI Factory: data collection → model training → prediction → decision → business value. The same dataset powering daily recommendations also generates Wrapped — showing how good data infrastructure creates value in multiple places at once.</p>
       </div>
     </div>
-
+ 
     <br><br>
     <div class="section-label">The Three Signals</div>
     <h2>What behavior tells Spotify</h2>
     <p class="section-intro">Instead of asking users to rate songs, Spotify reads what they actually do. These three implicit signals are the foundation of everything.</p>
-
+ 
     <div class="signals">
       <div class="signal-card fade-up">
         <div class="signal-icon">▶️</div>
@@ -506,14 +506,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- How It Works -->
 <section id="how" style="background: var(--surface);">
   <div class="section-inner">
     <div class="section-label">The Model</div>
     <h2>How collaborative filtering works</h2>
     <p class="section-intro">The recommendation model doesn't need to know anything about music theory. It just needs to find people who listen like you — and surface what they love that you haven't heard yet.</p>
-
+ 
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
@@ -546,14 +546,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- Recommendations -->
 <section id="recommendations">
   <div class="section-inner">
     <div class="section-label">Model Output</div>
     <h2>Top picks for Mia Torres</h2>
     <p class="section-intro">Based on Mia's listening history and the behavior of the two users most similar to her, the model surfaces three songs she hasn't played — but is very likely to enjoy.</p>
-
+ 
     <div class="reco-user">
       <div class="reco-avatar">MT</div>
       <div>
@@ -561,7 +561,7 @@
         <div class="reco-sub">Most similar to: Jordan Lee &amp; Sam Patel</div>
       </div>
     </div>
-
+ 
     <div class="reco-cards">
       <div class="reco-card fade-up">
         <div class="reco-rank">#1 Pick</div>
@@ -591,7 +591,7 @@
         <div class="reco-why">Mia already saves tracks by The Static Echo — this song by the same artist scores high on predicted engagement based on artist affinity.</div>
       </div>
     </div>
-
+ 
     <div class="reco-explainer">
       <div>
         <h3>Why this matters for business</h3>
@@ -604,20 +604,20 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- Wrapped -->
 <section id="wrapped">
   <div class="section-inner">
     <div class="section-label">Spotify Wrapped</div>
     <h2>The same data. A different product.</h2>
     <p class="section-intro">Wrapped isn't built from a separate system. It's the exact same behavioral dataset — streams, skips, saves — aggregated annually and presented as a shareable story. This is what good data infrastructure looks like: one investment, multiple products.</p>
-
+ 
     <div class="wrapped-hero">
       <div class="wrapped-year">Your 2024 Wrapped</div>
       <div class="wrapped-user-name">Mia <span>Torres</span></div>
       <div class="wrapped-tagline">Here's the soundtrack to your year.</div>
     </div>
-
+ 
     <div class="wrapped-grid">
       <div class="wrapped-card tall">
         <div class="wrapped-card-label">Top Artist</div>
@@ -680,7 +680,7 @@
         <div class="wrapped-personality-text">"The Deep Diver — when Mia finds an artist she loves, she commits. Repeat plays, saves, and almost no skips. The algorithm sees you clearly."</div>
       </div>
     </div>
-
+ 
     <div style="margin-top:48px; background:var(--surface2); border-radius:16px; padding:40px; border:1px solid rgba(255,255,255,0.06);">
       <div class="section-label">Business Insight</div>
       <h3 style="font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-bottom:14px;">Why Wrapped is worth hundreds of millions in marketing</h3>
@@ -688,14 +688,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- AI Factory -->
 <section id="factory">
   <div class="section-inner">
     <div class="section-label">Framework</div>
     <h2>The AI Factory in this project</h2>
     <p class="section-intro">Every component of this lab maps to a step in the AI Factory — the framework that describes how organizations turn raw data into business value through machine learning.</p>
-
+ 
     <div class="factory-flow">
       <div class="factory-step">
         <div class="factory-step-icon">📦</div>
@@ -730,14 +730,14 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- Business Rec -->
 <section id="business">
   <div class="section-inner">
     <div class="section-label">Business Recommendation</div>
     <h2>What Spotify should prioritize next</h2>
     <p class="section-intro">Building this system surfaced four clear opportunities where Spotify's real infrastructure should invest to stay ahead.</p>
-
+ 
     <div class="business-recs">
       <div class="business-rec highlight fade-up">
         <div class="business-rec-num">01</div>
@@ -762,7 +762,7 @@
     </div>
   </div>
 </section>
-
+ 
 <!-- Footer -->
 <footer>
   <div class="footer-logo">
@@ -774,6 +774,6 @@
   <div class="footer-divider"></div>
   <div class="footer-disc">This project was completed as part of MIS 432: AI in Business at Western Washington University. All data is simulated for educational purposes. Spotify, Spotify Wrapped, and the Spotify logo are trademarks of Spotify AB.</div>
 </footer>
-
+ 
 </body>
 </html>
